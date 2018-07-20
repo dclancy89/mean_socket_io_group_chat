@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Page Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- <link rel="stylesheet" type="text/css" href="css/main.css"> -->
+    <style>
+        ul#messages {
+            display: block;
+            margin: 0 auto;
+            width: 600px;
+            height: 600px;
+            border: 2px solid black;
+            overflow-y: scroll;
+        }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+    <script type ="text/javascript">
+        $(document).ready(function (){
+    
+            var socket = io(); //1
+    
+            socket.on('connection', function (data) { //4
+                console.log(data.msg);
+                let username = prompt("What is your name?");
+                socket.emit("new_user", username);
+            });
+
+            socket.on('update_users', function(data) {
+                $("#users").html("");
+                for(let i = 0; i < data.length; i++) {
+                    $("#users").append("<li>" + data[i]["username"]);
+                }
+            });
+
+            socket.on('update_messages', function(data) {
+                $("#messages").html("");
+                for(let i = 0; i < data.length; i++) {
+                    $("#messages").append("<li>" + data[i].user + " - " + data[i].message + "</li>");
+                }
+                
+            })
+
+            $("#submit").on("click", function(e){
+                e.preventDefault();
+                console.log($("#message").val());
+                let message = $("#message").val();
+                socket.emit('new_message', message);
+                $("#message").val("");
+            })
+          
+         });
+    </script>
+</head>
+<body>
+    <center>Hello</center>
+    <ul id="users"></ul>
+    <center><h3>Conversation Board</h3></center>
+    <ul id="messages"></ul>
+    <center><input type="text" id="message">
+    <button id="submit">Send</button></center>
+</body>
+</html>
